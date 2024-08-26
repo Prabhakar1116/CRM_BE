@@ -7,7 +7,7 @@ import { Order } from '../models/Order.model.js';
 export const getUserDashboardData = async (req, res) => {
   try {
     console.log('Fetching dashboard data for user:', req.userId);
-    const recentContacts = await Contact.find()
+    const recentContacts = await Contact.find({ userId: req.userId })
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('customerId', 'name');

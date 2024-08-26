@@ -15,10 +15,10 @@ export const createCommunication = async (req, res) => {
         console.log('Received communication data:', req.body);
         const newCommunication = new Communication({
             ...req.body,
-            createdBy: req.user ? req.user._id : null
+            createdBy: req.userId
         });
         let communication = await newCommunication.save();
-        communication = await Communication.findById(communication._id).populate('customerId');
+        communication = await Communication.findById(communication._id).populate('customerId').populate('createdBy').populate('assignedTo');
         res.status(201).json(communication);
     } catch (error) {
         console.error('Error creating communication:', error);
@@ -28,8 +28,37 @@ export const createCommunication = async (req, res) => {
 
 export const updateCommunication = async (req, res) => {
     try {
-        const communication = await Communication.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const communication = await Communication.findByIdAndUpdate(req.params.id, req.body, { new: true })
+            .populate('customerId')
+            .populate('createdBy')
+            .populate('assignedTo');
         res.status(200).json(communication);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const getQueriesByCustomer = async (req, res) => {
+    try {
+        const queries = await Communication.find({ 
+            customerId: req.params.customerId,
+            type: 'query'
+        }).populate('customerId').populate('createdBy').populate('assignedTo');
+        res.status(200).json(queries);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const getAllQueries = async (req, res) => {
+    try {
+        const queries = await Communication.find({ type: 'query' })
+            .populate('customerId')
+            .populate('createdBy')
+            .populate('assignedTo');
+        res.status(200).json(queries);
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server error" });

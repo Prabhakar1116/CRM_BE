@@ -28,7 +28,7 @@ export const getContactById = async (req, res) => {
 
 export const createContact = async (req, res) => {
     try {
-        const newContact = new Contact(req.body);
+        const newContact = new Contact({ ...req.body, userId: req.userId });
         const contact = await newContact.save();
         res.status(201).json(contact);
     } catch (error) {
